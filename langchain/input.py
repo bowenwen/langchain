@@ -34,3 +34,16 @@ def print_text(text: str, color: Optional[str] = None, end: str = "") -> None:
     else:
         text_to_print = get_colored_text(text, color)
     print(text_to_print, end=end)
+
+    # custom logging to file
+    import re
+    import os
+
+    ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+    text_to_log = re.sub(ansi_escape, "", text_to_print)
+    text_to_log = re.sub(r"[\xc2\x99]", "", text_to_log)
+    with open("logs/output_now.log", "a") as f:
+        print(text_to_log, file=f)
+    if os.getenv("MYLANGCHAIN_SAVE_CHAT_HISTORY") == "1":
+        with open("logs/output_recent.log", "a") as f:
+            print(f"======\n{text_to_log}\n", file=f)
