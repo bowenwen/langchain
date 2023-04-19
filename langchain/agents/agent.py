@@ -346,6 +346,7 @@ class Agent(BaseSingleActionAgent):
     @property
     def _stop(self) -> List[str]:
         return [
+            f"{self.observation_prefix.rstrip()}",
             f"\n{self.observation_prefix.rstrip()}",
             f"\n\t{self.observation_prefix.rstrip()}",
         ]
@@ -704,10 +705,18 @@ class AgentExecutor(Chain):
                 agent_action, verbose=self.verbose, color="green"
             )
             # Otherwise we lookup the tool
-            if agent_action.tool in name_to_tool_map:
-                tool = name_to_tool_map[agent_action.tool]
+            # First, check if any of the tools are mentioned by the agent
+            tool_mentioned = ""
+            for tool_name in list(name_to_tool_map.keys()):
+                if tool_name.lower() in agent_action.tool.lower():
+                    tool_mentioned = tool_name
+            if tool_mentioned != "":
+                # Second, use the tool mentioned, instead of exact lookup
+                # tool = name_to_tool_map[agent_action.tool]
+                tool = name_to_tool_map[tool_mentioned]
                 return_direct = tool.return_direct
-                color = color_mapping[agent_action.tool]
+                # color = color_mapping[agent_action.tool]
+                color = color_mapping[tool_mentioned]
                 tool_run_kwargs = self.agent.tool_run_logging_kwargs()
                 if return_direct:
                     tool_run_kwargs["llm_prefix"] = ""
@@ -722,6 +731,7 @@ class AgentExecutor(Chain):
                 tool_run_kwargs = self.agent.tool_run_logging_kwargs()
                 observation = InvalidTool().run(
                     agent_action.tool,
+                    tool_list=list(name_to_tool_map.keys()),
                     verbose=self.verbose,
                     color=None,
                     **tool_run_kwargs,
@@ -781,6 +791,7 @@ class AgentExecutor(Chain):
                 tool_run_kwargs = self.agent.tool_run_logging_kwargs()
                 observation = await InvalidTool().arun(
                     agent_action.tool,
+                    tool_list=list(name_to_tool_map.keys()),
                     verbose=self.verbose,
                     color=None,
                     **tool_run_kwargs,
