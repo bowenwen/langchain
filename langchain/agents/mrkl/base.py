@@ -45,7 +45,9 @@ def get_action_and_input(llm_output: str) -> Tuple[str, str]:
     regex = r"Action: (.*?)[\n]*Action Input:[\s]*(.*)"
     match = re.search(regex, llm_output, re.DOTALL)
     if not match:
-        raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+        # instead of raising error, return thought as final answer and end conversation
+        return "Final Answer", llm_output.split(FINAL_ANSWER_ACTION)[-1].strip()
+        #  raise ValueError(f"Could not parse LLM output: `{llm_output}`")
     action = match.group(1).strip()
     action_input = match.group(2)
     return action, action_input.strip(" ").strip('"')
