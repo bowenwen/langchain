@@ -20,6 +20,8 @@ Base = declarative_base()  # type: Any
 
 
 ADA_TOKEN_COUNT = 1536
+INSTRUCTOR_LARGE_TOKEN_COUNT = 768
+
 _LANGCHAIN_DEFAULT_COLLECTION_NAME = "langchain"
 
 
@@ -79,7 +81,8 @@ class EmbeddingStore(BaseModel):
     )
     collection = relationship(CollectionStore, back_populates="embeddings")
 
-    embedding: Vector = sqlalchemy.Column(Vector(ADA_TOKEN_COUNT))
+    # embedding: Vector = sqlalchemy.Column(Vector(ADA_TOKEN_COUNT))
+    embedding: Vector = sqlalchemy.Column(Vector(INSTRUCTOR_LARGE_TOKEN_COUNT))
     document = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     cmetadata = sqlalchemy.Column(JSON, nullable=True)
 
