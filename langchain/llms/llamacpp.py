@@ -46,8 +46,14 @@ class LlamaCpp(LLM):
     vocab_only: bool = Field(False, alias="vocab_only")
     """Only load the vocabulary, no weights."""
 
-    use_mlock: bool = Field(False, alias="use_mlock")
+    use_mmap: bool = Field(False, alias="use_mmap")
     """Force system to keep model in RAM."""
+
+    use_mlock: bool = Field(False, alias="use_mlock")
+    """Use mmap if possible."""
+
+    embedding: bool = Field(False, alias="embedding")
+    """Embedding mode only."""
 
     n_threads: Optional[int] = Field(None, alias="n_threads")
     """Number of threads to use. 
@@ -87,6 +93,15 @@ class LlamaCpp(LLM):
     last_n_tokens_size: Optional[int] = 64
     """The number of tokens to look back when applying the repeat_penalty."""
 
+    lora_base: Optional[str] = Field(None)
+    """Optional path to base model, useful if using a quantized base model and you want to apply LoRA to an f16 model."""
+
+    lora_path: Optional[str] = Field(None)
+    """Path to a LoRA file to apply to the model."""
+
+    verbose: Optional[bool] = False
+    """Print verbose output to stderr."""
+
     @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:
         """Validate that llama-cpp-python library is installed."""
@@ -97,10 +112,15 @@ class LlamaCpp(LLM):
         f16_kv = values["f16_kv"]
         logits_all = values["logits_all"]
         vocab_only = values["vocab_only"]
+        use_mmap = values["use_mmap"]
         use_mlock = values["use_mlock"]
+        embedding = values["embedding"]
         n_threads = values["n_threads"]
         n_batch = values["n_batch"]
         last_n_tokens_size = values["last_n_tokens_size"]
+        lora_base = values["lora_base"]
+        lora_path = values["lora_path"]
+        verbose = values["verbose"]
 
         try:
             from llama_cpp import Llama
@@ -113,10 +133,15 @@ class LlamaCpp(LLM):
                 f16_kv=f16_kv,
                 logits_all=logits_all,
                 vocab_only=vocab_only,
+                use_mmap=use_mmap,
                 use_mlock=use_mlock,
+                embedding=embedding,
                 n_threads=n_threads,
                 n_batch=n_batch,
                 last_n_tokens_size=last_n_tokens_size,
+                lora_base=lora_base,
+                lora_path=lora_path,
+                verbose=verbose,
             )
         except ImportError:
             raise ModuleNotFoundError(
