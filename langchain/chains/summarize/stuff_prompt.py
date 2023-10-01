@@ -1,11 +1,13 @@
 # flake8: noqa
 from langchain.prompts import PromptTemplate
 
-prompt_template = """Write a concise summary of the following:
+prompt_template = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
+### Instruction:
+Write a detailed summary of the input text.
 
+### Input:
 "{text}"
 
-
-CONCISE SUMMARY:"""
+### Response:"""
 PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])

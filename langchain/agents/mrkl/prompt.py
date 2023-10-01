@@ -19,7 +19,7 @@ SUFFIX = """
 Question: {input}
 
 ### Response:
-Thought:{agent_scratchpad}"""
+Thought: {agent_scratchpad}"""
 
 # original langchain version
 # PREFIX = """Answer the following questions as best you can. You have access to the following tools:"""
